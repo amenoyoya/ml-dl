@@ -1,0 +1,35 @@
+# 背景
+Pythonで作ったアプリケーションをexe化するのにPyInstaller等を使うが、
+64bitのPythonを使っていると64bitのexeしか作成できない。
+32bitアプリケーションを作るには、また1からPythonの環境を作り直してexe化する必要がある。
+そのため、32bitのPython環境を構築する際に必要な手順を備忘録として以下に示す。
+
+# 前提条件
+- OS : Windows10 64bit
+- conda version : 4.5.11
+
+# 32bit環境構築手順
+1. 環境変数CONDA_FORCE_32bitを1に設定
+2. AnacondaでPythonの仮想環境を作成。このときの環境名は32bitであることを明示しておくとわかりやすい
+3. 現環境を作成した32bit Pythonに設定
+4. Pythonを起動してMSC v.1900 32 bit (Intel)が見えたらインストールできている
+5. 環境変数CONDA_FORCE_32bitをもとに戻す
+
+$ set CONDA_FORCE_32BIT=1
+$ conda create -n py36_32bit python=3.6.5  # 仮想環境の作成
+$ conda info -e  # 現在の仮想環境を確認
+	# conda environments:
+	#
+	base                  *  C:\App\Miniconda3
+	py36_32bit               C:\App\Miniconda3\envs\py36_32bit
+$ activate py36_32bit  # py36_32bit環境をアクティベート
+$ conda info -e
+	# conda environments:
+	#
+	base                     C:\App\Miniconda3
+	py36_32bit            *  C:\App\Miniconda3\envs\py36_32bit
+$ python
+	Python 3.6.5 |Anaconda, Inc.| (default, Mar 29 2018, 13:23:52) [MSC v.1900 32 bit (Intel)] on win32
+	Type "help", "copyright", "credits" or "license" for more information.
+	>>> exit()
+$ set CONDA_FORCE_32BIT=

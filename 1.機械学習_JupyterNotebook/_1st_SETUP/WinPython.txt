@@ -1,0 +1,102 @@
+2018.03.17:
+  WinPython-32bit_3.6.3_Zero（Windows上で動作するポータブルPythonの最小パッケージ版）をインストール
+
+インストールディレクトリにある "WinPython Command Prompt.exe" でPython実行用のコマンドプロンプトが起動する。
+まずは、pip（pythonのモジュール管理システム）を最新版にアップデートしておく。
+
+> python -m pip install --upgrade pip
+
+なお、pythonからではなく直接pipを起動してパッケージをインストールすることもできるが、
+pip.exeの上書きができずに失敗するので、必ずpythonから起動すること！
+
+
+とりあえずウェブスクレイピング用にrequests（http通信関連）とBeautifulSoup（HTML解析器のラッパー）をインストール。
+
+> pip install requests
+
+HTTPを使うならrequestsにするのが吉。
+Python 2.x系では標準としてurllibとurllib2があり、urllibはPython 3.xでは廃止され、urllib2もurllib.requestとなった。
+そのurllibをメインページ(http://requests-docs-ja.readthedocs.io/en/latest/)で「APIがまともに使えません」「Python的ではない」とまで言うのがrequestsというライブラリである。
+それら以外にもurllib3(requests内部でも使われている)やhttplib、http.clientなど多数HTTPライブラリがあるのがPythonの現状。
+スクレイピングに関してのみ挙げておくと以下が簡易に行えるのがメリット。
+
+・SSL、ベーシック認証、ダイジェスト認証
+・スレッドセーフ
+・本文内容がユニコードになって返ってくる
+・タイムアウトが簡易かつ正しい
+
+HTTPリクエストかける時は、timeoutとheaderをかけて実行するのが吉。
+timeoutに関しては30secを設定する等のネット記事が多々見られる。
+以下によればtimeoutはページのロード時間を含まないので、ガッツリWebスクレイピングをかけるならボトルネックにならないよう短くしておいて大丈夫。ちなみにデフォルトでは60sec。
+http://requests-docs-ja.readthedocs.io/en/latest/user/quickstart/#timeouts
+headerには自身の正しいブラウザとOSをUser-Agentとして設定しておくべし。
+
+```
+import requests
+headers = {"User-Agent": "hoge"}
+resp = requests.get(URL, timeout=1, headers=headers)
+# textでunicode, contentでstr
+print(resp.text)
+```
+
+requestsではオレオレ証明書等を利用したWebサービスやお固めのWebページを取得しようとすると以下のようなエラーがでる場合がある。
+
+Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7fe861db6908>: Failed to establish a new connection: [Errno 111] Connection refused',))
+[CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:749)
+UNKNOWN_PROTOCOL
+
+SSL関連についてはverifyなるフラグが設定できるので以下のように。
+```
+requests.get(URL, timeout=1, headers=headers, verify=False)
+```
+その他post, deleteなどのメソッドの他、oauth認証やストリーム接続も用意されている。
+
+続いてBeatufulSoup。
+
+> pip install beautifulsoup4
+
+「pip install beautifulsoup」だとbeautifulsoup3が入ってしまう。
+所々module名が変わっていたりいる。違いはこの辺りを参照。
+Beautiful Soup Documentation - Beautiful Soup 4.4.0 documentation https://www.crummy.com/software/BeautifulSoup/bs4/doc/index.html#porting-code-to-bs4
+
+HTMLの構造解析をした上で、HTMLを綺麗に整形、問題のある点の修正等を行ってくれる。
+簡易な所では、headタグがbodyタグの中にあったら丁寧に外出ししてくれるとか。
+XML, RSS等にも対応している。
+
+```
+import requests
+from bs4 import BeautifulSoup
+resp = requests.get(URL)
+soup = BeautifulSoup(resp.text)
+# aタグの取得
+print(soup.get("a"))
+# 整形後のhtml表示
+print(soup.prettify())
+```
+
+なお、BeautifulSoup自体はパーサーではないので、内部で他の解析器を使用している。
+HTMLパーサーは通常Python標準のhtml.parserが使用されるが、lxmlやhtml5libがインストールされている場合はそちらが優先される。
+正しくパースするには可能な限りlxmlやhtml5libをインストールするのが無難。
+ただしlxmlなどは外部のCライブラリに依存しているので環境によってはそれらをインストールしなければならない。
+
+# lxml
+  C言語の高速実装な解析器。最近のWebの複雑な構造や動的な物に少し弱い。
+  > apt-get install libxml2-dev libxslt1-dev python-dev
+  > apt-get install python-lxml
+
+# html5lib
+  html5の規則に対応。ブラウザで表示するのとほぼ同じメソッド。かなり重い。
+  > pip install html5lib
+
+パーサの良し悪しを考えるとlxmlでチャレンジしてダメならhtml5libを試すのが良さそう。
+
+```
+try:
+    soup = BeautifulSoup(html, "lxml")
+except:
+    soup = BeautifulSoup(html, "html5lib")
+```
+
+parseして情報を得るだけならlxml単体でも可能である(lxmlはそもそもそういうパッケージ)。
+lxml単体でやるメリットとしてlxml.html.fromstringでDOMのツリー構造を得られるとか、make_links_absolute()、rewrite_links()によって全てのリンクを相対パスに書き換えられたりとかが標準で実装されている事がある。
+単体であればかなり、高速なので簡易なスクレイピング(特定のページ内からの取得など)ならBeautifulSoupを使わずlxmlで十分である。

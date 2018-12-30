@@ -1,0 +1,53 @@
+# バージョン確認
+(base) > conda --version
+conda 4.5.11
+
+(base) > python --version
+Python 3.7.0
+
+# 機械学習用に仮想環境を作成
+(base) > conda create -n py35-ml python=3.5
+Proceed ([y]/n)? y
+
+(base) > conda info -e
+base                  *  C:\App\Miniconda3
+py35-ml                  C:\App\Miniconda3\envs\py35-ml
+
+(base) > activate py35-ml
+
+(py35-ml) > conda info -e
+base                     C:\App\Miniconda3
+py35-ml               *  C:\App\Miniconda3\envs\py36-ml
+
+# pipのアップグレード
+(py35-ml) > python -m pip install --upgrade pip
+
+# TensorFlow（with GPU）、Kerasのインストール
+## ※ cudaGPU.txtを参考にVisualStudioとGPUを設定しておく
+(py35-ml) > pip install tensorflow-gpu
+(py35-ml) > pip install keras
+
+# テクニカル指標算出ライブラリ'TA-Lib'のインストール
+(py35-ml) > conda install -c quantopian ta-lib
+
+# データ解析ライブラリ'Pandas'のインストール
+(py35-ml) > conda install pandas
+
+# グラフ作図ライブラリ'MatplotLib'のインストール
+(py35-ml) > conda install matplotlib
+(py35-ml) > pip install mpl-finance  # ローソク足等をMatplotLibで作図するためのライブラリ
+
+# 機械学習ライブラリ'Scikit-Learn'のインストール
+(py35-ml) > conda install scikit-learn
+
+# データサイエンス用IDE'Jpyter Lab'のインストール
+(py35-ml) > conda install jupyterlab
+(py35-ml) > jupyter lab  # localhost:8888 にて Jupyter Lab 実行
+
+# 強化学習ライブラリ'OpenAI Gym'及び'Keras-rl'のインストール
+## ※ VisualStudio2015（+ Python Tools, + Git）を事前にインストールしておく（cudaGPU.txt参照）
+## ※ envs\py35-ml\Scripts にffmpegをコピーしておく
+(py35-ml) > pip install -U git+https://github.com/openai/baselines.git
+(py35-ml) > pip install gym
+(py35-ml) > pip install -U git+https://github.com/Kojoley/atari-py.git
+(py35-ml) > pip install keras-rl

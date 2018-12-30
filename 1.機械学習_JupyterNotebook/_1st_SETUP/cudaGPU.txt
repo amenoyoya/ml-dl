@@ -1,0 +1,43 @@
+※VS2015はPython3.5で使用されているコンパイラであるため、
+　以下の操作は全て、Python3.5環境での手順である
+　また、TensorFlowは64bit環境でしか使えないため注意
+
+1. Visual C++ Build Tools 2015（vs2015.3.com_enu.iso）をインストール＆再起動
+　※必ず「Custom Install」で以下のパッケージを追加する
+　　+ Programming Language > Visual C++
+　　+ Programming Language > Python Tools for Visual Studio
+　　+ Windows and Web Development > Windows 8.1 and Windows Phone 8.0/8.1 Tools > Tools and Windows SDKs
+　　+ Common Tools > Git for Windows
+
+2. CUDA Toolkit 9.0（cuda_9.0.176_win10.exe）をインストール
+
+3. システム変数確認
+　> echo %PATH%
+	...;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin;...
+　> echo %CUDA_PATH%
+	C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0
+　> echo %CUDA_PATH_V9_0%
+	C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0
+　> where nvcc
+	C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin\nvcc.exe
+
+4. cuDNN v7.1をインストール
+　・zipファイルを適当なフォルダに展開する
+　・展開したフォルダ内の以下のファイルを指定パスにコピー
+　　\bin\cudnn64_7.dll -> C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin\
+　　\include\cudnn.h -> C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\include\
+　　\lib\x64\cudnn.lib -> C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\lib\x64\
+
+5. Anaconda（python環境）インストール
+
+6. AnacondaでTensorFlow-GPUのインストール
+　> conda install tensorflow-gpu
+　> python -c "from tensorflow.python.client import device_lib; device_lib.list_local_devices()"
+	-> GPUデバイスを認識していればインストール成功
+
+7. AnacondaでChainer（GPUあり）のインストール
+　> pip install cupy --no-cache-dir -vvvv
+	「CuPy Configuration Summary」の「Module:」項目で「cuda」と「cudnn」が「Yes」になっていることを確認する
+　> pip install chainer --no-cache-dir -vvvv
+　> python -c "import chainer; print(chainer.cuda.available)"
+	-> True が返ってくればインストール成功

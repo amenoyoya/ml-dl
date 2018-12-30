@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\Users\\user\\Desktop\\MyBox\\ProjectPython\\DeepLearning\\my-mnist-model"
+all_model_checkpoint_paths: "C:\\Users\\user\\Desktop\\MyBox\\ProjectPython\\DeepLearning\\my-mnist-model"
