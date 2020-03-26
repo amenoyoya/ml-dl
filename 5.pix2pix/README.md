@@ -38,6 +38,9 @@ $ python tools/download-dataset.py facades
 ## image B: 抽象画像
 ## --which_direction: 学習方向 => BtoA: 抽象画像から写真画像を生成できるように学習
 $ python pix2pix.py --mode train --output_dir facades_train --max_epochs 100 --input_dir facades/train --which_direction BtoA
+
+## => ~ 66 min (Intel Core i7-9750H 2.60GHz, GeForce RTX 2060)
+## => facades_train/ に学習済みモデルが作成される
 ```
 
 ### Failed to get convolution algorithm. エラーが発生する場合
@@ -58,4 +61,20 @@ with tf.Session(config=config) as sess:
 ## 713行目付近
 with sv.managed_session(config=config) as sess:
     ...
+```
+
+### 学習結果の確認
+```bash
+# tensorboard による学習ログの確認
+$ tensorboard --logdir=facades_train
+
+## => http://localhost:6006
+
+# 学習済みモデルを使った画像生成のテスト
+## facades/val/ にあるテスト用の画像を使って検証する
+$ python pix2pix.py  --mode test --output_dir facades_test --input_dir facades/val  --checkpoint facades_train
+
+## => ~ 25 sec
+## => facades_test/index.html に結果レポートが生成される
+### 左: 画像生成に使った抽象画像, 真ん中: 自動生成された画像, 右: 自動生成された画像と比較するための参考画像
 ```
